@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:random_number/component/number_to_image.dart';
 import 'package:random_number/constant/color.dart';
 
 class SettingScreen extends StatefulWidget {
-  const SettingScreen({super.key});
+  final int maxNumber;
+  const SettingScreen({
+    required this.maxNumber,
+    super.key
+  });
 
   @override
   State<SettingScreen> createState() => _SettingScreenState();
@@ -12,11 +17,19 @@ class _SettingScreenState extends State<SettingScreen> {
   double maxNumber = 1000;
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    maxNumber = widget.maxNumber.toDouble();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: primaryColor,
-        body: Padding(
+    return Scaffold(
+      backgroundColor: primaryColor,
+      body: SafeArea(
+        child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -24,18 +37,39 @@ class _SettingScreenState extends State<SettingScreen> {
               _Number(
                 maxNumber: maxNumber,
               ),
-              _Slider(),
-              _Button(),
+              _Slider(
+                value: maxNumber,
+                onChanged: onSliderChanged,
+              ),
+              _Button(
+                onPressed: onSavePressed,
+              ),
             ],
           ),
         ),
       ),
     );
   }
+
+  onSavePressed() {
+    Navigator.of(context).pop(
+      maxNumber.toInt(),
+    );
+  }
+
+  onSliderChanged(double value) {
+    setState(() {
+      maxNumber = value;
+    });
+  }
 }
 
 class _Button extends StatelessWidget {
-  const _Button({super.key});
+  final VoidCallback onPressed;
+  const _Button({
+    required this.onPressed,
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -44,21 +78,28 @@ class _Button extends StatelessWidget {
           backgroundColor: redColor,
           foregroundColor: Colors.white,
         ),
-        onPressed: () {
-          Navigator.of(context).pop();
-        },
+        onPressed: onPressed,
         child: Text('저장'));
   }
 }
 
 class _Slider extends StatelessWidget {
-  const _Slider({super.key});
+  final double value;
+  final ValueChanged<double> onChanged;
+  const _Slider({
+    required this.value,
+    required this.onChanged,
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-      ),
+    return Slider(
+      value: value,
+      min: 1000,
+      max: 100000,
+      activeColor: redColor,
+      onChanged: onChanged,
     );
   }
 }
@@ -72,14 +113,7 @@ class _Number extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        child: Row(
-          children: maxNumber.toString().split('')
-              .map(
-                (number) => Image.asset('asset/image/$number.png',
-                width: 50.0, height: 70.0),
-          )
-              .toList(),
-        ),
+        child: NumberToImage(number: maxNumber.toInt()),
       ),
     );
   }
